@@ -3,30 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情绪小树苗 - 你的虚拟伙伴</title>
-    <link rel="stylesheet" href="style.css">
+    <title>情绪小树苗</title>
+    <style>
+        body {
+            font-family: '微软雅黑', sans-serif;
+            background-color: #F0F8F0; /* 改为与原始程序一致的绿色背景 */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2E8B57; /* 深绿色标题 */
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        #tree-image {
+            width: 120px; /* 调整为更合适的尺寸 */
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        #status-display {
+            background-color: #E6F3FF;
+            color: #4682B4;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            text-align: left;
+            white-space: pre-line;
+        }
+        #chat-display {
+            height: 250px; /* 稍微减小高度 */
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .user-msg {
+            text-align: right;
+            color: #0056b3;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        .ai-msg {
+            text-align: left;
+            color: #228B22; /* 森林绿 */
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-style: italic;
+        }
+        #input-form {
+            display: flex;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            font-size: 11px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #90EE90; /* 浅绿色按钮 */
+            color: white;
+            cursor: pointer;
+            border-radius: 0 5px 5px 0;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #7FDD7F;
+        }
+    </style>
 </head>
 <body>
-
-    <div class="app-container">
-        <div class="top-frame">
-            <h1>和你的小树苗说说话吧</h1>
-            <div class="tree-image-container">
-                <img id="tree-image" src="healthy.png" alt="小树苗">
-            </div>
-        </div>
-
-        <div class="chat-frame">
-            <div id="status-display"></div>
-            <div id="chat-area"></div>
-        </div>
-
-        <div class="input-frame">
-            <input type="text" id="user-input" placeholder="和你的小树苗说说话...">
-            <button id="send-button">发送</button>
-        </div>
+    <div class="container">
+        <h1>和你的小树苗说说话吧</h1>
+        <img id="tree-image" src="seed.png" alt="小树苗">
+        <div id="status-display"></div>
+        <div id="chat-display"></div>
+        <form id="input-form">
+            <input type="text" id="user-input" placeholder="和我说点什么吧...">
+            <button type="submit">发送</button>
+        </form>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // TreeAgent核心逻辑（从Python翻译）
+        class TreeAgent {
+            constructor() {
+                this.health = 50;
+                this.happiness = 50;
+                this.water = 50;
+                this.emotion_keywords = {
+                    'positive': ['开心', '快乐', '高兴', '哈哈', '爱', '喜欢', '棒', '不错', '完美', '顺利'],
+                    'negative': ['难过', '伤心', '失落', '郁闷', '烦', '讨厌', '糟糕', '失败', '哭', '累'],
+                    'neutral':  ['还行', '一般', '普通', '哦', '嗯', '知道了']
+                };
+                this.responses = {
+                    'positive': ["听到你这么说我真开心！感觉我又长高了一点呢！🌱", "太棒啦！你的快乐就是我的阳光！☀️", "为你感到高兴！我们一起加油！"],
+                    'negative': ["抱抱你，没关系的，一切都会好起来的。🌧️", "我在这里陪着你，把不开心都告诉我吧。", "别难过，你已经做得很棒了。休息一下，明天又是新的一天。"],
+                    'neutral': ["嗯嗯，我听着呢。", "原来是这样呀。", "谢谢你告诉我这些。"],
+                    'thirsty': ["我有点渴了...你能多陪我说说话吗？这就像给我浇水一样。💧", "感觉叶子有点蔫...需要你的关心来补充水分。"]
+                };
+            }
+
+            analyze_emotion(text) {
+                for (const emotion in this.emotion_keywords) {
+                    for (const keyword of this.emotion_keywords[emotion]) {
+                        if (text.includes(keyword)) {
+                            return emotion;
+                        }
+                    }
+                }
+                return 'neutral';
+            }
+
+            update_state(emotion) {
+                if (emotion === 'positive') {
+                    this.happiness = Math.min(100, this.happiness + 10);
+                    this.health = Math.min(100, this.health + 5);
+                    this.water = Math.max(0, this.water - 5);
+                } else if (emotion === 'negative') {
+                    this.happiness = Math.max(0, this.happiness - 5);
+                    this.water = Math.min(100, this.water + 10);
+                } else {
+                    this.water = Math.max(0, this.water - 2);
+                }
+                if (this.water < 20) {
+                    this.health = Math.max(0, this.health - 5);
+                }
+            }
+
+            get_response(emotion) {
+                if (this.water < 30 && Math.random() > 0.5) {
+                    const thirstyResponses = this.responses['thirsty'];
+                    return thirstyResponses[Math.floor(Math.random() * thirstyResponses.length)];
+                }
+                const emotionResponses = this.responses[emotion] || this.responses['neutral'];
+                return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
+            }
+
+            get_status_text() {
+                let status = `【小树苗状态】\n快乐值: ${this.happiness}/100 😊\n健康度:${this.health}/100 ❤️\n水分值: ${this.water}/100 💧\n`;
+                const avg_status = (this.happiness + this.health + this.water) / 3;
+                if (avg_status > 70) status += "\n我长势喜人，感觉快要开花了！🌸";
+                else if (avg_status > 40) status += "\n我还在努力成长中...🌿";
+                else status += "\n我需要你的关心...快枯萎了...🥀";
+                return status;
+            }
+        }
+
+        // 初始化
+        const form = document.getElementById('input-form');
+        const input = document.getElementById('user-input');
+        const chatDisplay = document.getElementById('chat-display');
+        const treeImage = document.getElementById('tree-image');
+        const statusDisplay = document.getElementById('status-display');
+        
+        const agent = new TreeAgent();
+
+        function updateTreeImage(health) {
+            let imageName = 'seed.png';
+            if (health >= 85) imageName = 'flowering.png';
+            else if (health >= 60) imageName = 'healthy.png';
+            else if (health >= 40) imageName = 'young.png';
+            else if (health >= 20) imageName = 'sprout.png';
+            
+            treeImage.src = imageName; // 移除/static/前缀
+        }
+
+        function updateStatus() {
+            statusDisplay.textContent = agent.get_status_text();
+        }
+
+        // 初始化显示
+        window.onload = () => {
+            updateStatus();
+            updateTreeImage(agent.health);
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = input.value.trim();
+            if (!message) return;
+
+            // 显示用户消息
+            chatDisplay.innerHTML += `<div class="user-msg">你: ${message}</div>`;
+            input.value = '';
+
+            // 处理情感和响应
+            const emotion = agent.analyze_emotion(message);
+            agent.update_state(emotion);
+            const response = agent.get_response(emotion);
+            
+            // 显示AI响应
+            chatDisplay.innerHTML += `<div class="ai-msg">小树苗: ${response}</div>`;
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            
+            // 更新状态和图片
+            updateStatus();
+            updateTreeImage(agent.health);
+        });
+    </script>
 </body>
 </html>
