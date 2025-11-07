@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: '微软雅黑', sans-serif;
-            background-color: #F0F8F0; /* 改为与原始程序一致的绿色背景 */
+            background-color: #F0F8F0;
             text-align: center;
             margin: 0;
             padding: 20px;
@@ -21,12 +21,12 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #2E8B57; /* 深绿色标题 */
+            color: #2E8B57;
             font-size: 18px;
             margin-bottom: 10px;
         }
         #tree-image {
-            width: 120px; /* 调整为更合适的尺寸 */
+            width: 120px;
             height: auto;
             margin-bottom: 15px;
             border-radius: 5px;
@@ -42,7 +42,7 @@
             white-space: pre-line;
         }
         #chat-display {
-            height: 250px; /* 稍微减小高度 */
+            height: 250px;
             overflow-y: scroll;
             border: 1px solid #ccc;
             padding: 10px;
@@ -59,7 +59,7 @@
         }
         .ai-msg {
             text-align: left;
-            color: #228B22; /* 森林绿 */
+            color: #228B22;
             margin-bottom: 8px;
             font-size: 11px;
             font-style: italic;
@@ -77,7 +77,7 @@
         button {
             padding: 10px 15px;
             border: none;
-            background-color: #90EE90; /* 浅绿色按钮 */
+            background-color: #90EE90;
             color: white;
             cursor: pointer;
             border-radius: 0 5px 5px 0;
@@ -101,7 +101,7 @@
     </div>
 
     <script>
-        // TreeAgent核心逻辑（从Python翻译）
+        // TreeAgent核心逻辑
         class TreeAgent {
             constructor() {
                 this.health = 50;
@@ -131,19 +131,21 @@
                 return 'neutral';
             }
 
+            // 修改后的状态更新逻辑
             update_state(emotion) {
+                // 每发送一条消息，水分值和健康值都提高
+                this.water = Math.min(100, this.water + 5);
+                this.health = Math.min(100, this.health + 3);
+                
+                // 根据情绪类型调整快乐值和健康值
                 if (emotion === 'positive') {
                     this.happiness = Math.min(100, this.happiness + 10);
-                    this.health = Math.min(100, this.health + 5);
-                    this.water = Math.max(0, this.water - 5);
+                    this.health = Math.min(100, this.health + 5); // 积极消息额外增加健康值
                 } else if (emotion === 'negative') {
-                    this.happiness = Math.max(0, this.happiness - 5);
-                    this.water = Math.min(100, this.water + 10);
+                    this.happiness = Math.max(0, this.happiness - 8);
+                    this.health = Math.max(0, this.health - 3); // 消极消息减少健康值
                 } else {
-                    this.water = Math.max(0, this.water - 2);
-                }
-                if (this.water < 20) {
-                    this.health = Math.max(0, this.health - 5);
+                    this.happiness = Math.min(100, this.happiness + 2); // 中性消息略微增加快乐值
                 }
             }
 
@@ -182,7 +184,7 @@
             else if (health >= 40) imageName = 'young.png';
             else if (health >= 20) imageName = 'sprout.png';
             
-            treeImage.src = imageName; // 移除/static/前缀
+            treeImage.src = imageName;
         }
 
         function updateStatus() {
